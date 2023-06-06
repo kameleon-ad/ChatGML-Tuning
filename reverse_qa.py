@@ -4,11 +4,12 @@ from tqdm import tqdm
 
 
 def format_example(example: dict) -> dict:
-    context = f"Instruction: {example['instruction']}\n"
+    context = f"Instruction: Generate the available question about the following paragraph\n"
+    context += f"Input: {example['output']}\n"
     if example.get("input"):
-        context += f"Input: Generate the available question about this paragraph - {example['output']}\n"
+        context += f"FYI: {example['input']}\n"
     context += "Answer: "
-    target = example["input"]
+    target = example["instruction"]
     return {"context": context, "target": target}
 
 
@@ -23,7 +24,10 @@ def main():
 
     with open(args.save_path, 'w') as f:
         for example in tqdm(examples, desc="formatting.."):
-            f.write(json.dumps(format_example(example)) + '\n')
+            proc_data = format_example(example)
+            if proc_data is None:
+                continue
+            f.write(json.dumps(proc_data) + '\n')
 
 
 if __name__ == "__main__":
